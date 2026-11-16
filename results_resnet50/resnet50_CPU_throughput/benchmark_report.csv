@@ -1,0 +1,34 @@
+Command line parameters
+-m;../../models/resnet50.xml
+-d;CPU
+-shape;[1,3,244,244]
+-hint;throughput
+-t;60
+-cdir;./cache
+-report_type;detailed_counters
+-report_folder;results/raw/resnet50_CPU_throughput
+
+Configuration setup
+topology;Model1
+target device;CPU
+API;async
+inference_only;True
+precision;UNSPECIFIED
+batch size;1
+number of iterations;None
+number of parallel infer requests;5
+duration (ms);60000
+
+Execution results
+read model time (ms);9.34
+reshape model time (ms);2.35
+compile model time (ms);58.17
+first inference time (ms);21.23
+total execution time (ms);60044.58
+total number of iterations;8465
+latency (ms);33.40
+avg latency;35.20
+min latency;20.79
+max latency;88.77
+throughput;140.98
+

@@ -1,0 +1,19 @@
+iteration,model,framework,device,pretrain_time(s),initial_sys_mem(MiB),initial_rss_mem(MiB),compile_max_rss_mem(MiB),compile_max_sys_mem(MiB),compile_max_increase_rss_mem(MiB),compile_max_increase_sys_mem(MiB),input_size,infer_count,generation_time(s),output_size,latency(ms),1st_latency(ms),2nd_avg_latency(ms),precision,max_rss_mem(MiB),max_sys_mem(MiB),max_increase_rss_mem(MiB),max_increase_sys_mem(MiB),prompt_idx,chat_idx,1st_infer_latency(ms),2nd_infer_avg_latency(ms),num_beams,batch_size,tokenization_time,detokenization_time,result_md5,start,end
+0,phi,ov,CPU,1.56947,,,,,,,772,512,26.45386,512,51.66769,5686.86214,40.63595,,,,,,0,,4453.571,40.63492,1,1,0.736,0.311,['6a4f0fe4b402d2bb9188ca5d53421cd2'],2026-10-17T18:22:06.473777,2026-10-17T18:22:32.934545
+1,phi,ov,CPU,,,,,,,,772,512,21.92038,512,42.81324,1205.00557,40.53522,,,,,,0,,68.964,40.53423,1,1,0.7,0.226,['6a4f0fe4b402d2bb9188ca5d53421cd2'],2026-10-17T18:22:32.934564,2026-10-17T18:22:54.860298
+2,phi,ov,CPU,,,,,,,,772,512,21.93068,512,42.83336,1198.79657,40.56757,,,,,,0,,71.67,40.56658,1,1,0.664,0.241,['6a4f0fe4b402d2bb9188ca5d53421cd2'],2026-10-17T18:22:54.860317,2026-10-17T18:23:16.795278
+3,phi,ov,CPU,,,,,,,,772,512,21.93487,512,42.84155,1209.42446,40.55494,,,,,,0,,69.716,40.55399,1,1,0.65,0.233,['6a4f0fe4b402d2bb9188ca5d53421cd2'],2026-10-17T18:23:16.795296,2026-10-17T18:23:38.734467
+avg,phi,ov,CPU,,,,,,,,772.0,512.0,21.92864,512.0,42.82938,1204.40887,40.55258,,,,,,0,,70.11667,40.5516,1,1,0.67133,0.23333,['6a4f0fe4b402d2bb9188ca5d53421cd2'],,
+mini,phi,ov,CPU,,,,,,,,772,512,21.92038,512,42.81324,1198.79657,40.53522,,,,,,0,,68.964,40.53423,1,1,0.65,0.226,['6a4f0fe4b402d2bb9188ca5d53421cd2'],,
+median,phi,ov,CPU,,,,,,,,772.0,512.0,21.93068,512.0,42.83336,1205.00557,40.55494,,,,,,0,,69.716,40.55399,1,1,0.664,0.233,['6a4f0fe4b402d2bb9188ca5d53421cd2'],,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tokenization_time: Tokenizer encode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+detokenization_time: Tokenizer decode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+pretrain_time: Total time of load model and compile model,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+generation_time: Time for one interaction. (e.g. The duration of  answering one question or generating one picture),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+iteration=0: warm-up; iteration=avg: average (exclude warm-up);iteration=mini: minimum value (exclude warm-up);iteration=median: median value (exclude warm-up);,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_rss_mem/max_sys_mem: max rss/system memory consumption during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_increase_rss_mem/max_increase_sys_mem: max increase of rss/system memory during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+initial_rss_mem/initial_sys_mem: rss/system memory state at start;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_rss_mem/compile_max_sys_mem: max rss/system memory consumption on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_increase_rss_mem/compile_max_increase_sys_mem: max increase of rss/system memory on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

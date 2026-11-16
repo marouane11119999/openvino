@@ -1,0 +1,34 @@
+Command line parameters
+-m;../../models/yolo26x.xml
+-d;GPU
+-shape;[1,3,640,640]
+-hint;throughput
+-t;60
+-cdir;./cache
+-report_type;detailed_counters
+-report_folder;results/raw/yolo26x_GPU_throughput
+
+Configuration setup
+topology;Model1
+target device;GPU
+API;async
+inference_only;True
+precision;UNSPECIFIED
+batch size;1
+number of iterations;None
+number of parallel infer requests;4
+duration (ms);60000
+
+Execution results
+read model time (ms);29.54
+reshape model time (ms);0.03
+compile model time (ms);779.33
+first inference time (ms);123.55
+total execution time (ms);60669.30
+total number of iterations;516
+latency (ms);470.57
+avg latency;469.19
+min latency;226.64
+max latency;492.82
+throughput;8.51
+

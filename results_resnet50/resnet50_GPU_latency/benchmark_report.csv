@@ -1,0 +1,34 @@
+Command line parameters
+-m;../../models/resnet50.xml
+-d;GPU
+-shape;[1,3,244,244]
+-hint;latency
+-t;60
+-cdir;./cache
+-report_type;detailed_counters
+-report_folder;results/raw/resnet50_GPU_latency
+
+Configuration setup
+topology;Model1
+target device;GPU
+API;sync
+inference_only;True
+precision;UNSPECIFIED
+batch size;1
+number of iterations;None
+number of parallel infer requests;1
+duration (ms);60000
+
+Execution results
+read model time (ms);7.54
+reshape model time (ms);1.80
+compile model time (ms);1190.23
+first inference time (ms);8.03
+total execution time (ms);60002.40
+total number of iterations;12269
+latency (ms);4.87
+avg latency;4.88
+min latency;4.85
+max latency;6.98
+throughput;204.48
+

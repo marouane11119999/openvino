@@ -1,0 +1,21 @@
+iteration,model,framework,device,pretrain_time(s),initial_sys_mem(MiB),initial_rss_mem(MiB),compile_max_rss_mem(MiB),compile_max_sys_mem(MiB),compile_max_increase_rss_mem(MiB),compile_max_increase_sys_mem(MiB),input_size,infer_count,generation_time(s),output_size,latency(ms),1st_latency(ms),2nd_avg_latency(ms),precision,max_rss_mem(MiB),max_sys_mem(MiB),max_increase_rss_mem(MiB),max_increase_sys_mem(MiB),prompt_idx,chat_idx,1st_infer_latency(ms),2nd_infer_avg_latency(ms),num_beams,batch_size,tokenization_time,detokenization_time,result_md5,start,end
+0,phi3.5-vision-instruct-int4-ov,ov,CPU,1.5695,,,,,,,774,512,26.52915,512,51.81475,5722.70278,40.71311,,,,,,0,,4477.918,40.71214,1,1,0.744,0.358,['aa0004f124e980c81a23c5d8c6387777'],2026-11-07T13:48:49.305881,2026-11-07T13:49:15.841455
+1,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774,512,22.01755,512,43.00302,1254.59411,40.62803,,,,,,0,,83.168,40.62704,1,1,0.719,0.282,['aa0004f124e980c81a23c5d8c6387777'],2026-11-07T13:49:15.841474,2026-11-07T13:49:37.863962
+2,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774,512,22.0714,512,43.1082,1243.5172,40.7552,,,,,,0,,86.703,40.75416,1,1,0.688,0.29,['aa0004f124e980c81a23c5d8c6387777'],2026-11-07T13:49:37.863981,2026-11-07T13:49:59.939271
+3,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774,512,22.00944,512,42.98719,1220.14189,40.6793,,,,,,0,,80.99,40.6782,1,1,0.868,0.289,['aa0004f124e980c81a23c5d8c6387777'],2026-11-07T13:49:59.939289,2026-11-07T13:50:21.952491
+4,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774,512,22.04814,512,43.06277,1227.63997,40.74062,,,,,,0,,83.463,40.73962,1,1,0.684,0.309,['aa0004f124e980c81a23c5d8c6387777'],2026-11-07T13:50:21.952515,2026-11-07T13:50:44.004407
+5,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774,512,22.37675,512,43.70459,1311.2025,41.21969,,,,,,0,,85.595,41.2186,1,1,0.933,0.294,['aa0004f124e980c81a23c5d8c6387777'],2026-11-07T13:50:44.004425,2026-11-07T13:51:06.384920
+avg,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774.0,512.0,22.10465,512.0,43.17315,1251.41913,40.80457,,,,,,0,,83.9838,40.80352,1,1,0.7784,0.2928,['aa0004f124e980c81a23c5d8c6387777'],,
+mini,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774,512,22.00944,512,42.98719,1220.14189,40.62803,,,,,,0,,80.99,40.62704,1,1,0.684,0.282,['aa0004f124e980c81a23c5d8c6387777'],,
+median,phi3.5-vision-instruct-int4-ov,ov,CPU,,,,,,,,774.0,512.0,22.04814,512.0,43.06277,1243.5172,40.74062,,,,,,0,,83.463,40.73962,1,1,0.719,0.29,['aa0004f124e980c81a23c5d8c6387777'],,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tokenization_time: Tokenizer encode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+detokenization_time: Tokenizer decode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+pretrain_time: Total time of load model and compile model,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+generation_time: Time for one interaction. (e.g. The duration of  answering one question or generating one picture),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+iteration=0: warm-up; iteration=avg: average (exclude warm-up);iteration=mini: minimum value (exclude warm-up);iteration=median: median value (exclude warm-up);,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_rss_mem/max_sys_mem: max rss/system memory consumption during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_increase_rss_mem/max_increase_sys_mem: max increase of rss/system memory during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+initial_rss_mem/initial_sys_mem: rss/system memory state at start;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_rss_mem/compile_max_sys_mem: max rss/system memory consumption on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_increase_rss_mem/compile_max_increase_sys_mem: max increase of rss/system memory on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

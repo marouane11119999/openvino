@@ -1,0 +1,32 @@
+iteration,model,framework,device,pretrain_time(s),initial_sys_mem(MiB),initial_rss_mem(MiB),compile_max_rss_mem(MiB),compile_max_sys_mem(MiB),compile_max_increase_rss_mem(MiB),compile_max_increase_sys_mem(MiB),input_size,infer_count,generation_time(s),output_size,latency(ms),1st_latency(ms),2nd_avg_latency(ms),precision,max_rss_mem(MiB),max_sys_mem(MiB),max_increase_rss_mem(MiB),max_increase_sys_mem(MiB),prompt_idx,chat_idx,1st_infer_latency(ms),2nd_infer_avg_latency(ms),num_beams,batch_size,tokenization_time,detokenization_time,result_md5,start,end
+0,qwen2.5-7b-int4,ov,CPU,0.82334,,,,,,,35,2556,40.69404,2560,79.48054,3012.29639,14.74806,,,,,,0,,3012.25,73.73898,1,5,0.9327,0.39952,"['ce20459318cee5f323b6433c73978b3a', 'ce20459318cee5f323b6433c73978b3a', 'ce20459318cee5f323b6433c73978b3a', 'ce20459318cee5f323b6433c73978b3a', 'ce20459318cee5f323b6433c73978b3a']",2026-11-02T14:11:21.467101,2026-11-02T14:12:02.164281
+1,qwen2.5-7b-int4,ov,CPU,,,,,,,,35,2556,38.0919,2560,74.39824,321.02036,14.78295,,,,,,0,,320.981,73.91343,1,5,0.25828,0.349,"['6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e']",2026-11-02T14:12:02.164302,2026-11-02T14:12:40.258432
+2,qwen2.5-7b-int4,ov,CPU,,,,,,,,35,2556,38.72044,2560,75.62587,326.85379,15.02664,,,,,,0,,326.811,75.13193,1,5,0.2499,0.38816,"['65c576ac921c1967bee40c9a55a8f5fa', '65c576ac921c1967bee40c9a55a8f5fa', '65c576ac921c1967bee40c9a55a8f5fa', '65c576ac921c1967bee40c9a55a8f5fa', '65c576ac921c1967bee40c9a55a8f5fa']",2026-11-02T14:12:40.258452,2026-11-02T14:13:18.981423
+3,qwen2.5-7b-int4,ov,CPU,,,,,,,,35,2556,39.14351,2560,76.45216,312.76575,15.19777,,,,,,0,,312.717,75.98748,1,5,0.29911,0.3371,"['3675033ab52bf074e50232970b755d9f', '3675033ab52bf074e50232970b755d9f', '3675033ab52bf074e50232970b755d9f', '3675033ab52bf074e50232970b755d9f', '3675033ab52bf074e50232970b755d9f']",2026-11-02T14:13:18.981448,2026-11-02T14:13:58.127209
+4,qwen2.5-7b-int4,ov,CPU,,,,,,,,35,2556,39.48241,2560,77.11409,283.75769,15.34176,,,,,,0,,283.724,76.70747,1,5,0.25345,0.33596,"['1e65ec9f7f0dd72f4d295786e13fea6b', '1e65ec9f7f0dd72f4d295786e13fea6b', '1e65ec9f7f0dd72f4d295786e13fea6b', '1e65ec9f7f0dd72f4d295786e13fea6b', '1e65ec9f7f0dd72f4d295786e13fea6b']",2026-11-02T14:13:58.127230,2026-11-02T14:14:37.611832
+5,qwen2.5-7b-int4,ov,CPU,,,,,,,,35,2556,39.65268,2560,77.44665,282.66641,15.40882,,,,,,0,,282.632,77.0427,1,5,0.26044,0.3901,"['ba560cc50ac2282cd5d9276256b8a152', 'ba560cc50ac2282cd5d9276256b8a152', 'ba560cc50ac2282cd5d9276256b8a152', 'ba560cc50ac2282cd5d9276256b8a152', 'ba560cc50ac2282cd5d9276256b8a152']",2026-11-02T14:14:37.611853,2026-11-02T14:15:17.267034
+avg,qwen2.5-7b-int4,ov,CPU,,,,,,,,35.0,2556.0,39.01819,2560.0,76.2074,305.4128,15.15159,,,,,,0,,305.373,75.7566,1,5,0.26423,0.36006,"['6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e']",,
+mini,qwen2.5-7b-int4,ov,CPU,,,,,,,,35,2556,38.0919,2560,74.39824,282.66641,14.78295,,,,,,0,,282.632,73.91343,1,5,0.2499,0.33596,"['6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e']",,
+median,qwen2.5-7b-int4,ov,CPU,,,,,,,,35.0,2556.0,39.14351,2560.0,76.45216,312.76575,15.19777,,,,,,0,,312.717,75.98748,1,5,0.25828,0.349,"['6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e', '6a5be97bf2e643d6d2d1c66f71839d5e']",,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+input_size: Input token size,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+output_size: Text/Code generation models: generated text token size,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+infer_count: Limit the Text/Code generation models' output token size,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+latency: Text/Code generation models: ms/token. Output token size / generation time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1st_latency: Text/Code generation models: First token latency (ms). For Text generation in chat mode it is normalized by input_size (ms/input_token).,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2nd_avg_latency: Text/Code generation models: Other tokens (exclude first token) latency,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1st_infer_latency: Text/Code generation models: First inference latency i.e. prefill time (ms). For Text generation in chat mode it is normalized by input_size (ms/input_token).,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2nd_infer_avg_latency: Text/Code generation models: Other inferences (exclude first inference) latency,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+result_md5: MD5 of generated text,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+prompt_idx: Index of prompts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+chat_idx: Index of chats,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tokenization_time: Tokenizer encode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+detokenization_time: Tokenizer decode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+pretrain_time: Total time of load model and compile model,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+generation_time: Time for one interaction. (e.g. The duration of  answering one question or generating one picture),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+iteration=0: warm-up; iteration=avg: average (exclude warm-up);iteration=mini: minimum value (exclude warm-up);iteration=median: median value (exclude warm-up);,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_rss_mem/max_sys_mem: max rss/system memory consumption during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_increase_rss_mem/max_increase_sys_mem: max increase of rss/system memory during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+initial_rss_mem/initial_sys_mem: rss/system memory state at start;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_rss_mem/compile_max_sys_mem: max rss/system memory consumption on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_increase_rss_mem/compile_max_increase_sys_mem: max increase of rss/system memory on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

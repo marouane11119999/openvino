@@ -1,0 +1,34 @@
+Command line parameters
+-m;../../models/yolo26x.xml
+-d;NPU
+-shape;[1,3,640,640]
+-hint;latency
+-t;60
+-cdir;./cache
+-report_type;detailed_counters
+-report_folder;results/raw/yolo26x_NPU_latency
+
+Configuration setup
+topology;Model1
+target device;NPU
+API;sync
+inference_only;True
+precision;UNSPECIFIED
+batch size;1
+number of iterations;None
+number of parallel infer requests;1
+duration (ms);60000
+
+Execution results
+read model time (ms);28.19
+reshape model time (ms);0.03
+compile model time (ms);3324.34
+first inference time (ms);182.45
+total execution time (ms);60062.23
+total number of iterations;907
+latency (ms);65.95
+avg latency;66.08
+min latency;64.38
+max latency;71.49
+throughput;15.10
+

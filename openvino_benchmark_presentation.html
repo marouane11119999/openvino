@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Benchmarking OpenVINO Models — GenAI Performance Study</title>
+<style>
+  :root {
+    --bg: #060a12;
+    --bg-2: #0a1120;
+    --panel: rgba(15, 24, 41, 0.78);
+    --panel-solid: #0f1829;
+    --panel-2: rgba(20, 32, 54, 0.7);
+    --line: rgba(148, 163, 184, 0.14);
+    --line-strong: rgba(148, 163, 184, 0.26);
+    --text: #e9eefb;
+    --muted: #93a4c3;
+    --muted-2: #6f819f;
+    --cpu: #38bdf8;
+    --cpu-soft: #7dd3fc;
+    --gpu: #34d399;
+    --gpu-soft: #6ee7b7;
+    --npu: #fbbf24;
+    --npu-soft: #fcd34d;
+    --bad: #fb7185;
+    --accent: #5eead4;
+    --accent-2: #818cf8;
+    --radius: 16px;
+    --topbar: 76px;
+    --bottombar: 58px;
+    --font: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background:
+      radial-gradient(1100px 600px at 82% -10%, rgba(56, 189, 248, 0.10), transparent 60%),
+      radial-gradient(900px 500px at 8% 110%, rgba(129, 140, 248, 0.10), transparent 60%),
+      radial-gradient(700px 420px at 55% 50%, rgba(94, 234, 212, 0.035), transparent 60%),
+      var(--bg);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(circle at 50% 40%, black, transparent 85%);
+    z-index: 0;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ============================================================
+     Top bar / navbar
+     ============================================================ */
+
+  .topbar {
+    height: var(--topbar);
+    flex: 0 0 var(--topbar);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 34px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(6, 10, 18, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 232px;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: #04121c;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--cpu) 100%);
+    box-shadow: 0 8px 26px rgba(56, 189, 248, 0.28);
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  .brand-text strong {
+    font-size: 14px;
+    letter-spacing: 0.01em;
+  }
+
+  .brand-text small {
+    color: var(--muted-2);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .navbar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 550;
+    white-space: nowrap;
+    transition: color 160ms ease, background 160ms ease;
+  }
+
+  .nav-link:hover {
+    color: var(--text);
+    background: rgba(148, 163, 184, 0.07);
+  }
+
+  .nav-link .nav-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 2px 5px;
+    transition: all 160ms ease;
+  }
+
+  .nav-link.active {
+    color: var(--text);
+    background: rgba(56, 189, 248, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.18);
+  }
+
+  .nav-link.active .nav-num {
+    color: #04121c;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--cpu));
+  }
+
+  .top-meta {
+    min-width: 232px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .top-meta .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gpu);
+    box-shadow: 0 0 12px var(--gpu);
+  }
+
+  /* ============================================================
+     Deck
+     ============================================================ */
+
+  .deck {
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+  }
+
+  .slide {
+    display: none;
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    padding: 20px 32px 12px;
+    animation: slideIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .slide::-webkit-scrollbar { width: 0; height: 0; }
+
+  .slide.active { display: block; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide::after {
+    content: attr(data-num);
+    position: absolute;
+    right: 30px;
+    bottom: 4px;
+    font-family: var(--mono);
+    font-size: 118px;
+    line-height: 1;
+    font-weight: 800;
+    color: rgba(148, 163, 184, 0.035);
+    pointer-events: none;
+    letter-spacing: -0.04em;
+  }
+
+  .slide-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .slide-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 12px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(26px, 2.8vw, 40px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    font-weight: 750;
+  }
+
+  h1 .grad {
+    background: linear-gradient(100deg, var(--accent) 0%, var(--cpu) 55%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 780px;
+  }
+
+  .head-badge {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 13px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(15, 24, 41, 0.6);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  .head-badge b { color: var(--text); font-weight: 600; }
+
+  /* ============================================================
+     Layout helpers
+     ============================================================ */
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .kpi {
+    position: relative;
+    padding: 10px 13px 9px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(20, 32, 54, 0.72), rgba(12, 20, 35, 0.62));
+    overflow: hidden;
+  }
+
+  .kpi::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0.85;
+  }
+
+  .kpi.kpi-cpu::before { background: var(--cpu); }
+  .kpi.kpi-gpu::before { background: var(--gpu); }
+  .kpi.kpi-warn::before { background: var(--npu); }
+
+  .kpi-value {
+    font-family: var(--mono);
+    font-size: clamp(21px, 2.05vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .kpi-value small {
+    font-size: 0.52em;
+    font-weight: 600;
+    color: var(--muted);
+    margin-left: 3px;
+    letter-spacing: 0;
+  }
+
+  .kpi-label {
+    margin-top: 5px;
+    color: var(--text);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .kpi-sub {
+    margin-top: 2px;
+    color: var(--muted-2);
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .content-grid.reverse {
+    grid-template-columns: minmax(0, 1.62fr) minmax(300px, 0.78fr);
+  }
+
+  .panel {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(18, 29, 50, 0.78), rgba(10, 17, 30, 0.72));
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+  }
+
+  .panel-pad { padding: 16px 18px; }
+
+  .panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 16px 0;
+  }
+
+  .panel-kicker {
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .panel h3 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .panel p {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ============================================================
+     Slide 1 — intro
+     ============================================================ */
+
+  .intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .intro-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .callout {
+    position: relative;
+    padding: 12px 15px 12px 17px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(18, 29, 50, 0.72), rgba(10, 17, 30, 0.66));
+    overflow: hidden;
+  }
+
+  .callout::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--bad);
+  }
+
+  .callout.good::before { background: var(--gpu); }
+
+  .callout-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .callout-label .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--bad);
+    box-shadow: 0 0 9px rgba(251, 113, 133, 0.7);
+  }
+
+  .callout.good .callout-label .status-dot {
+    background: var(--gpu);
+    box-shadow: 0 0 9px rgba(52, 211, 153, 0.7);
+  }
+
+  .callout h2 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    line-height: 1.24;
+    letter-spacing: -0.015em;
+    font-weight: 680;
+  }
+
+  .callout p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .callout p strong { color: var(--text); font-weight: 650; }
+
+  .matrix-panel { padding: 12px 15px 13px; }
+
+  .matrix-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .matrix-title span {
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .matrix-item {
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: rgba(148, 163, 184, 0.035);
+  }
+
+  .matrix-item b {
+    display: block;
+    color: var(--text);
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .matrix-item span {
+    color: var(--muted-2);
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .chart-panel { display: flex; flex-direction: column; min-width: 0; }
+
+  .chart-panel .panel-head { padding-bottom: 2px; }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 8px 16px 0;
+    min-height: 24px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 550;
+  }
+
+  .legend-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .chart-host {
+    width: 100%;
+    height: clamp(250px, 34vh, 360px);
+    flex: 0 0 auto;
+    padding: 0 6px;
+    min-height: 0;
+  }
+
+  .chart-host svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .chart-host svg text {
+    font-family: var(--font);
+  }
+
+  .chart-host .bar { transition: filter 140ms ease, opacity 140ms ease; }
+  .chart-host .bar:hover { filter: brightness(1.18); }
+
+  .chart-caption {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 16px 10px;
+    color: var(--muted-2);
+    font-size: 10.5px;
+    line-height: 1.45;
+  }
+
+  .scale-badge {
+    flex: 0 0 auto;
+    padding: 3px 7px;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Metric tabs */
+
+  .metric-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: rgba(6, 10, 18, 0.45);
+    flex: 0 0 auto;
+  }
+
+  .metric-tab {
+    border: 0;
+    background: transparent;
+    color: var(--muted-2);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 6px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 150ms ease;
+    white-space: nowrap;
+  }
+
+  .metric-tab:hover { color: var(--text); }
+
+  .metric-tab.active {
+    color: #04121c;
+    background: var(--accent);
+    box-shadow: 0 3px 12px rgba(94, 234, 212, 0.22);
+  }
+
+  /* Slide 1 horizontal bars */
+
+  .hbar-legend {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .hbar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: 2px 0 0;
+  }
+
+  .hbar-row {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) 58px;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hbar-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .hbar-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .hbar-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .hbar-fill {
+    height: 13px;
+    border-radius: 3px;
+    flex: 0 0 auto;
+    min-width: 3px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  .hbar-fill.cpu { background: linear-gradient(90deg, #0284c7, var(--cpu)); }
+  .hbar-fill.gpu { background: linear-gradient(90deg, #059669, var(--gpu)); }
+
+  .hbar-value {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .hbar-ratio {
+    justify-self: end;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--bad);
+    background: rgba(251, 113, 133, 0.10);
+    border: 1px solid rgba(251, 113, 133, 0.22);
+    border-radius: 999px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  .chart-footnote {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    color: var(--muted-2);
+    font-size: 10.5px;
+    line-height: 1.4;
+  }
+
+  .chart-footnote b { color: var(--text); font-weight: 650; }
+
+  /* Phase strip */
+
+  .phase-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .phase {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: rgba(15, 24, 41, 0.55);
+  }
+
+  .phase-num {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--muted);
+    border: 1px solid var(--line-strong);
+    background: rgba(148, 163, 184, 0.05);
+  }
+
+  .phase.done .phase-num {
+    color: #04121c;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .phase strong {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+
+  .phase span {
+    display: block;
+    color: var(--muted-2);
+    font-size: 10px;
+    margin-top: 1px;
+  }
+
+  /* ============================================================
+     Insight panels
+     ============================================================ */
+
+  .insight-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+    min-width: 0;
+  }
+
+  .insight-headline {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.26;
+    letter-spacing: -0.02em;
+    font-weight: 680;
+  }
+
+  .insight-headline .hl {
+    color: var(--gpu);
+  }
+
+  .insight-headline .hl-cpu {
+    color: var(--cpu);
+  }
+
+  .insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .insight-list li {
+    position: relative;
+    padding-left: 14px;
+    color: var(--muted);
+    font-size: 11.4px;
+    line-height: 1.45;
+  }
+
+  .insight-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+
+  .insight-list li strong { color: var(--text); font-weight: 650; }
+  .insight-list li .good { color: var(--gpu); font-weight: 650; }
+  .insight-list li .bad { color: var(--bad); font-weight: 650; }
+
+  .verdict-box {
+    margin-top: auto;
+    padding: 11px 12px;
+    border: 1px solid rgba(52, 211, 153, 0.20);
+    border-radius: 10px;
+    background: rgba(52, 211, 153, 0.055);
+  }
+
+  .verdict-box .v-label {
+    display: block;
+    color: var(--gpu);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .verdict-box p {
+    color: var(--text);
+    font-size: 11.8px;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .config-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .config-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(148, 163, 184, 0.03);
+    font-size: 11px;
+  }
+
+  .config-row .config-name { color: var(--muted); }
+  .config-row .config-tag {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  .config-tag.cpu { color: var(--cpu); background: rgba(56, 189, 248, 0.10); border: 1px solid rgba(56, 189, 248, 0.20); }
+  .config-tag.gpu { color: var(--gpu); background: rgba(52, 211, 153, 0.10); border: 1px solid rgba(52, 211, 153, 0.20); }
+
+  .final-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .final-strip-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: rgba(15, 24, 41, 0.55);
+  }
+
+  .final-strip-item span {
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .final-strip-item strong {
+    font-size: 11.5px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  .final-strip-item strong.cpu { color: var(--cpu); }
+  .final-strip-item strong.gpu { color: var(--gpu); }
+
+  /* ============================================================
+     Bottom bar
+     ============================================================ */
+
+  .bottombar {
+    height: var(--bottombar);
+    flex: 0 0 var(--bottombar);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 34px;
+    border-top: 1px solid var(--line);
+    background: rgba(6, 10, 18, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .nav-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    border: 1px solid var(--line-strong);
+    background: rgba(148, 163, 184, 0.05);
+    color: var(--muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 15px;
+    transition: all 150ms ease;
+  }
+
+  .nav-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    background: rgba(94, 234, 212, 0.08);
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(148, 163, 184, 0.13);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 25%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--cpu));
+    transition: width 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .bottombar-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .key-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .source-note {
+    color: var(--muted-2);
+    opacity: 0.8;
+  }
+
+  .key {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: rgba(148, 163, 184, 0.06);
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  /* ============================================================
+     Responsive
+     ============================================================ */
+
+  @media (max-width: 1180px) {
+    .brand, .top-meta { min-width: 0; }
+    .brand-text { display: none; }
+    .topbar { padding: 0 20px; gap: 14px; }
+    .slide { padding: 20px 20px 18px; }
+    .bottombar { padding: 0 20px; }
+    .content-grid, .content-grid.reverse { grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr); }
+    .intro-grid { grid-template-columns: 1fr; }
+    .slide::after { font-size: 88px; }
+  }
+
+  @media (max-width: 900px) {
+    .navbar { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+    .navbar::-webkit-scrollbar { display: none; }
+    .nav-link { padding: 8px 10px; font-size: 12px; }
+    .nav-link .nav-num { display: none; }
+    .top-meta { display: none; }
+    .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .content-grid, .content-grid.reverse { grid-template-columns: 1fr; }
+    .phase-strip { grid-template-columns: 1fr; }
+    .final-strip { grid-template-columns: 1fr; }
+    .head-badge { display: none; }
+    .source-note { display: none; }
+    .slide-head { margin-bottom: 12px; }
+  }
+
+  @media (max-width: 620px) {
+    :root { --topbar: 64px; --bottombar: 52px; }
+    .topbar { padding: 0 14px; }
+    .brand-mark { width: 32px; height: 32px; font-size: 11px; }
+    .slide { padding: 14px 14px 16px; }
+    .bottombar { padding: 0 14px; }
+    .bottombar-meta .key-hint { display: none; }
+    .metric-tabs { width: 100%; justify-content: space-between; }
+    .metric-tab { flex: 1; padding: 6px 4px; }
+    .panel-head { flex-direction: column; gap: 8px; }
+    .hbar-row { grid-template-columns: 38px minmax(0, 1fr) 52px; }
+    .slide::after { display: none; }
+  }
+
+  @media (max-height: 760px) {
+    .slide { padding: 14px 28px 12px; }
+    .slide-head { margin-bottom: 8px; }
+    .eyebrow { margin-bottom: 5px; }
+    .subtitle { font-size: 12.5px; margin-top: 5px; }
+    .kpi-row { margin-bottom: 9px; gap: 8px; }
+    .kpi { padding: 8px 11px 7px; }
+    .kpi-value { font-size: 20px; }
+    .kpi-label { font-size: 10.5px; margin-top: 3px; }
+    .kpi-sub { font-size: 9.5px; }
+    .chart-host { height: clamp(220px, 31vh, 280px); }
+    .insight-list { gap: 5px; }
+    .insight-list li { font-size: 10.8px; line-height: 1.4; }
+    .verdict-box { padding: 8px 10px; }
+    .final-strip { margin-top: 8px; }
+    .final-strip-item { padding: 6px 10px; }
+
+    /* Slide 1 becomes a compact 2-column block on short screens */
+    .intro-left {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+    }
+    .intro-left .matrix-panel { grid-column: 1 / -1; }
+    .callout p { font-size: 11.5px; line-height: 1.45; }
+    .callout h2 { font-size: 14px; }
+    .phase-strip { display: none; }
+    .hbar-chart { gap: 8px; }
+  }
+
+  @media (max-height: 700px) {
+    .final-strip { display: none; }
+    .chart-host { height: 210px; }
+  }
+
+  @media (max-height: 660px) {
+    .slide { padding: 10px 22px 8px; }
+    .slide-head { margin-bottom: 6px; }
+    .eyebrow { font-size: 9.5px; margin-bottom: 4px; }
+    h1 { font-size: 24px; }
+    .subtitle { font-size: 11.5px; margin-top: 3px; }
+    .kpi-row { margin-bottom: 7px; gap: 7px; }
+    .kpi { padding: 7px 9px 6px; }
+    .kpi-value { font-size: 18px; }
+    .kpi-sub { display: none; }
+    .chart-host { height: 200px; }
+    .insight-headline { font-size: 14px; }
+    .insight-list { gap: 4px; }
+    .insight-list li { font-size: 10px; line-height: 1.35; }
+    .verdict-box { display: none; }
+  }
+
+  @media print {
+    body { overflow: visible; background: white; }
+    .app { height: auto; display: block; }
+    .topbar, .bottombar { display: none; }
+    .deck { display: block; }
+    .slide { display: block !important; position: relative; page-break-after: always; height: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="topbar">
+    <a class="brand" href="#slide-1" aria-label="OpenVINO benchmarking home">
+      <span class="brand-mark">OV</span>
+      <span class="brand-text">
+        <strong>OpenVINO Benchmarking</strong>
+        <small>GenAI performance study</small>
+      </span>
+    </a>
+
+    <nav class="navbar" aria-label="Presentation slides">
+      <a class="nav-link active" href="#slide-1" data-slide="0"><span class="nav-num">01</span>Overview</a>
+      <a class="nav-link" href="#slide-2" data-slide="1"><span class="nav-num">02</span>LLM · Single</a>
+      <a class="nav-link" href="#slide-3" data-slide="2"><span class="nav-num">03</span>LLM · Batched</a>
+      <a class="nav-link" href="#slide-4" data-slide="3"><span class="nav-num">04</span>VLM · Image Gen</a>
+    </nav>
+
+    <div class="top-meta">
+      <span class="dot"></span>
+      <span>OPENVINO · CPU / GPU / NPU</span>
+      <span id="slideCounter">1 / 4</span>
+    </div>
+  </header>
+
+  <!-- ================= DECK ================= -->
+  <main class="deck" id="deck">
+
+    <!-- ============================================================
+         SLIDE 1 — OVERVIEW
+         ============================================================ -->
+    <section class="slide active" id="slide-1" data-num="01">
+      <div class="slide-inner">
+        <div class="slide-head">
+          <div>
+            <div class="eyebrow">Thesis · OpenVINO model benchmarking</div>
+            <h1>Benchmarking <span class="grad">OpenVINO</span> models</h1>
+            <p class="subtitle">
+              A performance study across <strong>CPU, GPU and NPU</strong>, three precisions
+              (INT4 / INT8 / FP16) and two serving modes — built to answer one question:
+              <em>which configuration actually benefits from the GPU?</em>
+            </p>
+          </div>
+          <div class="head-badge">
+            <span>Qwen2.5-7B</span>
+            <b>·</b>
+            <span>Stable Diffusion</span>
+          </div>
+        </div>
+
+        <div class="intro-grid">
+          <!-- Left: context -->
+          <div class="intro-left">
+            <div class="callout">
+              <div class="callout-label"><span class="status-dot"></span>How it started</div>
+              <h2>The first workload did not benefit from the GPU.</h2>
+              <p>
+                While discovering OpenVINO, the initial test was a quantized LLM serving
+                <strong>one request at a time</strong>. Across INT4, INT8 and FP16, the GPU
+                stayed <strong>at or below CPU throughput</strong> — between <strong>0.90× and 0.96×</strong>.
+              </p>
+            </div>
+
+            <div class="callout good">
+              <div class="callout-label"><span class="status-dot"></span>Project direction</div>
+              <h2>Search for the configuration where the GPU pays off.</h2>
+              <p>
+                Instead of stopping at “GPU is not faster”, the benchmark harness was reused
+                to vary the <strong>workload</strong>, the <strong>precision</strong> and the
+                <strong>batch size</strong> — and to measure the point where GPU acceleration
+                becomes worthwhile.
+              </p>
+            </div>
+
+            <div class="panel matrix-panel">
+              <div class="matrix-title">
+                <span>Benchmark matrix</span>
+                <span>OpenVINO GenAI</span>
+              </div>
+              <div class="matrix-grid">
+                <div class="matrix-item">
+                  <b>Devices</b>
+                  <span>CPU · GPU · NPU</span>
+                </div>
+                <div class="matrix-item">
+                  <b>Precision</b>
+                  <span>INT4 · INT8 · FP16</span>
+                </div>
+                <div class="matrix-item">
+                  <b>Workloads</b>
+                  <span>LLM text generation · VLM image generation</span>
+                </div>
+                <div class="matrix-item">
+                  <b>Modes &amp; metrics</b>
+                  <span>Single / batch ×5 · throughput · latency · TTFT · TPOT · startup</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: first workload chart -->
+          <div class="panel chart-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Starting point · Qwen2.5-7B · batch = 1</div>
+                <h3>Throughput on the first workload</h3>
+              </div>
+              <div class="head-badge" style="padding: 6px 10px; font-size: 9.5px;">
+                <span style="color: var(--bad);">GPU ≤ CPU</span>
+              </div>
+            </div>
+
+            <div class="chart-legend hbar-legend">
+              <span class="legend-item"><span class="legend-swatch" style="background: var(--cpu);"></span>CPU</span>
+              <span class="legend-item"><span class="legend-swatch" style="background: var(--gpu);"></span>GPU</span>
+              <span class="legend-item" style="margin-left: auto; color: var(--muted-2);">tokens / second</span>
+            </div>
+
+            <div class="panel-pad" style="padding-top: 0;">
+              <div class="hbar-chart" role="img" aria-label="CPU versus GPU throughput for INT4, INT8 and FP16 on a single request">
+                <div class="hbar-row">
+                  <div class="hbar-label">INT4</div>
+                  <div class="hbar-stack">
+                    <div class="hbar-line">
+                      <div class="hbar-fill cpu" style="width: 80.4%;"></div>
+                      <span class="hbar-value">16.75</span>
+                    </div>
+                    <div class="hbar-line">
+                      <div class="hbar-fill gpu" style="width: 73.2%;"></div>
+                      <span class="hbar-value">15.26</span>
+                    </div>
+                  </div>
+                  <div class="hbar-ratio">0.91×</div>
+                </div>
+
+                <div class="hbar-row">
+                  <div class="hbar-label">INT8</div>
+                  <div class="hbar-stack">
+                    <div class="hbar-line">
+                      <div class="hbar-fill cpu" style="width: 51.6%;"></div>
+                      <span class="hbar-value">10.76</span>
+                    </div>
+                    <div class="hbar-line">
+                      <div class="hbar-fill gpu" style="width: 46.5%;"></div>
+                      <span class="hbar-value">9.69</span>
+                    </div>
+                  </div>
+                  <div class="hbar-ratio">0.90×</div>
+                </div>
+
+                <div class="hbar-row">
+                  <div class="hbar-label">FP16</div>
+                  <div class="hbar-stack">
+                    <div class="hbar-line">
+                      <div class="hbar-fill cpu" style="width: 24.5%;"></div>
+                      <span class="hbar-value">5.11</span>
+                    </div>
+                    <div class="hbar-line">
+                      <div class="hbar-fill gpu" style="width: 23.6%;"></div>
+                      <span class="hbar-value">4.92</span>
+                    </div>
+                  </div>
+                  <div class="hbar-ratio">0.96×</div>
+                </div>
+              </div>
+
+              <div class="chart-footnote">
+                <span>Same model, same prompt, 9 measured iterations.</span>
+                <span style="margin-left: auto; white-space: nowrap;"><b>GPU / CPU:</b> 0.90–0.96×</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase strip -->
+        <div class="phase-strip">
+          <div class="phase done">
+            <span class="phase-num">01</span>
+            <div><strong>Discover OpenVINO</strong><span>Benchmark the first LLM workload</span></div>
+          </div>
+          <div class="phase done">
+            <span class="phase-num">02</span>
+            <div><strong>Diagnose the gap</strong><span>GPU is not faster for single-request quantized LLM</span></div>
+          </div>
+          <div class="phase done">
+            <span class="phase-num">03</span>
+            <div><strong>Search for GPU-friendly configs</strong><span>Vary precision, batching and workload</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 2 — LLM SINGLE
+         ============================================================ -->
+    <section class="slide" id="slide-2" data-num="02">
+      <div class="slide-inner">
+        <div class="slide-head">
+          <div>
+            <div class="eyebrow">LLM · text generation · single request</div>
+            <h1>Single request: <span class="grad">CPU still wins</span></h1>
+            <p class="subtitle">
+              Qwen2.5-7B · batch = 1 · 512 output tokens per request · 9 measured iterations.
+              The first workload, measured across devices and precisions.
+            </p>
+          </div>
+          <div class="head-badge"><b>Qwen2.5-7B</b><span>· 512 output tokens</span></div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi kpi-cpu">
+            <div class="kpi-value">16.8<small>tok/s</small></div>
+            <div class="kpi-label">Best single-request throughput</div>
+            <div class="kpi-sub">CPU · INT4</div>
+          </div>
+          <div class="kpi kpi-warn">
+            <div class="kpi-value">0.91<small>×</small></div>
+            <div class="kpi-label">GPU vs CPU throughput</div>
+            <div class="kpi-sub">INT4 · GPU is 9% slower</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value">874<small>ms</small></div>
+            <div class="kpi-label">Best time to first token</div>
+            <div class="kpi-sub">CPU · INT4</div>
+          </div>
+          <div class="kpi kpi-warn">
+            <div class="kpi-value">49.1<small>s</small></div>
+            <div class="kpi-label">NPU time to first token</div>
+            <div class="kpi-sub">INT4 · compile-dominated first inference</div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div class="panel chart-panel" data-chart="llmSimple">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Qwen2.5-7B · batch = 1</div>
+                <h3 class="chart-title">Generation throughput</h3>
+              </div>
+              <div class="metric-tabs" role="tablist" aria-label="Metric">
+                <button class="metric-tab active" data-metric="throughput" role="tab">Throughput</button>
+                <button class="metric-tab" data-metric="tpot" role="tab">TPOT</button>
+                <button class="metric-tab" data-metric="ttft" role="tab">TTFT</button>
+                <button class="metric-tab" data-metric="startup" role="tab">Startup</button>
+              </div>
+            </div>
+
+            <div class="chart-legend"></div>
+            <div class="chart-host"></div>
+
+            <div class="chart-caption">
+              <span class="chart-caption-text"></span>
+              <span class="scale-badge" hidden>log scale</span>
+            </div>
+          </div>
+
+          <div class="panel insight-panel">
+            <h2 class="insight-headline">
+              At batch 1, the GPU is <span class="hl-cpu">not an accelerator</span> — it is a parity device.
+            </h2>
+            <ul class="insight-list">
+              <li><strong>CPU wins every quantized precision.</strong> INT4 is the fastest single-request configuration: 16.8 tok/s, 59.6 ms TPOT and 0.87 s TTFT.</li>
+              <li><strong>GPU lands at 0.90–0.96× CPU</strong> across INT4, INT8 and FP16 — slightly slower, never faster.</li>
+              <li><strong>GPU startup is 6.6–24.7× more expensive</strong> than CPU: 6.5–14.6 s vs 0.6–1.0 s load + compile.</li>
+              <li><strong>NPU is not competitive:</strong> 7.0 tok/s, 130 ms TPOT, 49 s TTFT and 39 s startup on INT4.</li>
+            </ul>
+            <div class="verdict-box">
+              <span class="v-label">Reading</span>
+              <p>Single-request, quantized LLM inference is a CPU workload. Batching is the next lever to test.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 3 — LLM BATCHED
+         ============================================================ -->
+    <section class="slide" id="slide-3" data-num="03">
+      <div class="slide-inner">
+        <div class="slide-head">
+          <div>
+            <div class="eyebrow">LLM · text generation · batched</div>
+            <h1>Batching: <span class="grad">the GPU finds its opening</span></h1>
+            <p class="subtitle">
+              Qwen2.5-7B · batch = 5 · aggregate throughput across the batch · 9 measured iterations.
+              Batching changes the economics of every device.
+            </p>
+          </div>
+          <div class="head-badge"><b>Qwen2.5-7B</b><span>· batch ×5</span></div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi kpi-cpu">
+            <div class="kpi-value">65.6<small>tok/s</small></div>
+            <div class="kpi-label">Best overall throughput</div>
+            <div class="kpi-sub">CPU · INT4 · still the absolute winner</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value">3.9<small>×</small></div>
+            <div class="kpi-label">Batching speedup</div>
+            <div class="kpi-sub">CPU INT4: 16.8 → 65.6 tok/s</div>
+          </div>
+          <div class="kpi kpi-gpu">
+            <div class="kpi-value">1.78<small>×</small></div>
+            <div class="kpi-label">GPU vs CPU in FP16</div>
+            <div class="kpi-sub">23.5 vs 13.2 tok/s · GPU finally wins</div>
+          </div>
+          <div class="kpi kpi-warn">
+            <div class="kpi-value">10.7<small>s</small></div>
+            <div class="kpi-label">CPU INT4 time to first token</div>
+            <div class="kpi-sub">vs 0.87 s at batch 1 — the batching trade-off</div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div class="panel chart-panel" data-chart="llmBatched">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Qwen2.5-7B · batch = 5</div>
+                <h3 class="chart-title">Generation throughput</h3>
+              </div>
+              <div class="metric-tabs" role="tablist" aria-label="Metric">
+                <button class="metric-tab active" data-metric="throughput" role="tab">Throughput</button>
+                <button class="metric-tab" data-metric="tpot" role="tab">TPOT</button>
+                <button class="metric-tab" data-metric="ttft" role="tab">TTFT</button>
+                <button class="metric-tab" data-metric="startup" role="tab">Startup</button>
+              </div>
+            </div>
+
+            <div class="chart-legend"></div>
+            <div class="chart-host"></div>
+
+            <div class="chart-caption">
+              <span class="chart-caption-text"></span>
+              <span class="scale-badge" hidden>log scale</span>
+            </div>
+          </div>
+
+          <div class="panel insight-panel">
+            <h2 class="insight-headline">
+              Batching is the lever. <span class="hl">FP16 is where the GPU takes over.</span>
+            </h2>
+            <ul class="insight-list">
+              <li><strong>Throughput scales hard on CPU:</strong> INT4 goes 16.8 → 65.6 tok/s (3.9×); GPU INT4 goes 15.3 → 41.6 tok/s (2.7×).</li>
+              <li><strong>The cost is latency:</strong> CPU INT4 TTFT jumps 0.87 → 10.7 s; GPU INT4 0.99 → 14.6 s. Batching trades responsiveness for throughput.</li>
+              <li><strong>GPU's first real win — FP16 batched:</strong> 23.5 vs 13.2 tok/s and 42 vs 75 ms TPOT (1.78× over CPU).</li>
+              <li><strong>But quantized CPU still wins on absolute throughput:</strong> 65.6 tok/s INT4 beats every GPU configuration.</li>
+            </ul>
+            <div class="verdict-box">
+              <span class="v-label">GPU-friendly LLM config</span>
+              <p>FP16 + batching. For INT4 / INT8, the CPU remains the better host.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 4 — VLM IMAGE GENERATION
+         ============================================================ -->
+    <section class="slide" id="slide-4" data-num="04">
+      <div class="slide-inner">
+        <div class="slide-head">
+          <div>
+            <div class="eyebrow">VLM · image generation · Stable Diffusion</div>
+            <h1>Image generation: <span class="grad">the GPU pays off</span></h1>
+            <p class="subtitle">
+              Stable Diffusion · INT8 and FP16 · single request vs batch ×5 · seconds per generated image ·
+              9 measured iterations. The workload where GPU acceleration is consistent.
+            </p>
+          </div>
+          <div class="head-badge"><b>Stable Diffusion</b><span>· INT8 / FP16</span></div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi kpi-gpu">
+            <div class="kpi-value">24.4<small>s</small></div>
+            <div class="kpi-label">Best time per image</div>
+            <div class="kpi-sub">GPU · FP16 · batch ×5</div>
+          </div>
+          <div class="kpi kpi-gpu">
+            <div class="kpi-value">0.041<small>img/s</small></div>
+            <div class="kpi-label">Best aggregate throughput</div>
+            <div class="kpi-sub">GPU · FP16 · batch ×5</div>
+          </div>
+          <div class="kpi kpi-gpu">
+            <div class="kpi-value">1.99<small>×</small></div>
+            <div class="kpi-label">GPU vs CPU speedup</div>
+            <div class="kpi-sub">FP16 · batch ×5</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value">1.19<small>×</small></div>
+            <div class="kpi-label">Smallest GPU advantage</div>
+            <div class="kpi-sub">INT8 · single request</div>
+          </div>
+        </div>
+
+        <div class="content-grid reverse">
+          <div class="panel chart-panel" data-chart="imageGen">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Stable Diffusion · single vs batch ×5</div>
+                <h3 class="chart-title">Time per generated image</h3>
+              </div>
+              <div class="head-badge" style="padding: 6px 10px; font-size: 9.5px;">
+                <span style="color: var(--gpu);">lower is better</span>
+              </div>
+            </div>
+
+            <div class="chart-legend"></div>
+            <div class="chart-host"></div>
+
+            <div class="chart-caption">
+              <span class="chart-caption-text"></span>
+              <span class="scale-badge" hidden>log scale</span>
+            </div>
+          </div>
+
+          <div class="panel insight-panel">
+            <h2 class="insight-headline">
+              The GPU wins <span class="hl">every image-generation configuration</span> — by 1.2× to 2.0×.
+            </h2>
+            <ul class="insight-list">
+              <li><strong>FP16 is the GPU's sweet spot:</strong> 26.2 s per image single, 24.4 s batched — the best result in the study.</li>
+              <li><strong>Batching helps the GPU, hurts the CPU:</strong> GPU INT8 31.4 → 29.3 s and FP16 26.2 → 24.4 s; CPU INT8 37.2 → 42.0 s and FP16 47.0 → 48.6 s.</li>
+              <li><strong>INT8 narrows the gap:</strong> the smallest GPU advantage is 1.19× (INT8, single request).</li>
+              <li><strong>Consistent direction:</strong> unlike LLM inference, image generation rewards the GPU in all eight measured cases.</li>
+            </ul>
+            <div class="verdict-box">
+              <span class="v-label">Best configuration</span>
+              <p>GPU + FP16 + batch ×5 → 24.4 s / image, 0.041 img/s, 1.99× faster than CPU.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="final-strip">
+          <div class="final-strip-item">
+            <span>LLM · INT4 / INT8</span>
+            <strong class="cpu">CPU is better</strong>
+          </div>
+          <div class="final-strip-item">
+            <span>LLM · FP16 + batch</span>
+            <strong class="gpu">GPU · 1.78×</strong>
+          </div>
+          <div class="final-strip-item">
+            <span>VLM · image generation</span>
+            <strong class="gpu">GPU · up to 1.99×</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= BOTTOM BAR ================= -->
+  <footer class="bottombar">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide">←</button>
+    <div class="progress-track" aria-hidden="true">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide">→</button>
+    <div class="bottombar-meta">
+      <span class="key-hint"><span class="key">←</span><span class="key">→</span> navigate</span>
+      <span class="source-note">CSV · 9 iterations / config</span>
+      <span id="bottomCounter">01 / 04</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  /* ============================================================
+     Data
+     ============================================================ */
+
+  const SERIES = {
+    cpu: { key: "cpu", label: "CPU", color: "#38bdf8", light: "#7dd3fc" },
+    gpu: { key: "gpu", label: "GPU", color: "#34d399", light: "#6ee7b7" },
+    npu: { key: "npu", label: "NPU", color: "#fbbf24", light: "#fcd34d" }
+  };
+
+  const CHART_CONFIGS = {
+    llmSimple: {
+      defaultMetric: "throughput",
+      metrics: {
+        throughput: {
+          title: "Generation throughput",
+          unit: "tok/s",
+          decimals: 1,
+          series: [SERIES.cpu, SERIES.gpu, SERIES.npu],
+          caption: "Aggregate generation throughput — higher is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 16.75, gpu: 15.26, npu: 6.96 } },
+            { label: "INT8", values: { cpu: 10.76, gpu: 9.69 } },
+            { label: "FP16", values: { cpu: 5.11, gpu: 4.92, npu: 3.41 } }
+          ]
+        },
+        tpot: {
+          title: "Time per output token",
+          unit: "ms/token",
+          decimals: 1,
+          series: [SERIES.cpu, SERIES.gpu, SERIES.npu],
+          caption: "TPOT — time per output token; lower is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 59.59, gpu: 65.39, npu: 130.32 } },
+            { label: "INT8", values: { cpu: 92.83, gpu: 103.10 } },
+            { label: "FP16", values: { cpu: 195.25, gpu: 203.21, npu: 282.50 } }
+          ]
+        },
+        ttft: {
+          title: "Time to first token",
+          unit: "ms",
+          decimals: 0,
+          log: true,
+          logMin: 100,
+          logMax: 100000,
+          series: [SERIES.cpu, SERIES.gpu, SERIES.npu],
+          caption: "TTFT — time to first token; log scale; lower is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 874.3, gpu: 986.3, npu: 49061.4 } },
+            { label: "INT8", values: { cpu: 1047.4, gpu: 1017.5 } },
+            { label: "FP16", values: { cpu: 3136.5, gpu: 1531.9, npu: 41456.6 } }
+          ]
+        },
+        startup: {
+          title: "Startup cost",
+          unit: "s",
+          decimals: 2,
+          log: true,
+          logMin: 0.1,
+          logMax: 100,
+          series: [SERIES.cpu, SERIES.gpu, SERIES.npu],
+          caption: "Model load + compile time; log scale; lower is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 0.98, gpu: 6.52, npu: 39.37 } },
+            { label: "INT8", values: { cpu: 0.69, gpu: 7.59 } },
+            { label: "FP16", values: { cpu: 0.59, gpu: 14.59, npu: 36.68 } }
+          ]
+        }
+      }
+    },
+
+    llmBatched: {
+      defaultMetric: "throughput",
+      metrics: {
+        throughput: {
+          title: "Generation throughput",
+          unit: "tok/s",
+          decimals: 1,
+          series: [SERIES.cpu, SERIES.gpu],
+          caption: "Aggregate throughput across the batch — higher is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 65.62, gpu: 41.64 } },
+            { label: "INT8", values: { cpu: 48.60, gpu: 37.13 } },
+            { label: "FP16", values: { cpu: 13.19, gpu: 23.49 } }
+          ]
+        },
+        tpot: {
+          title: "Time per output token",
+          unit: "ms/token",
+          decimals: 1,
+          series: [SERIES.cpu, SERIES.gpu],
+          caption: "TPOT — time per output token; lower is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 15.15, gpu: 23.90 } },
+            { label: "INT8", values: { cpu: 20.50, gpu: 26.86 } },
+            { label: "FP16", values: { cpu: 75.47, gpu: 42.48 } }
+          ]
+        },
+        ttft: {
+          title: "Time to first token",
+          unit: "ms",
+          decimals: 0,
+          log: true,
+          logMin: 1000,
+          logMax: 100000,
+          series: [SERIES.cpu, SERIES.gpu],
+          caption: "TTFT — time to first token; log scale; lower is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 10689.4, gpu: 14557.2 } },
+            { label: "INT8", values: { cpu: 10038.2, gpu: 11250.6 } },
+            { label: "FP16", values: { cpu: 41975.5, gpu: 15560.5 } }
+          ]
+        },
+        startup: {
+          title: "Startup cost",
+          unit: "s",
+          decimals: 2,
+          log: true,
+          logMin: 0.1,
+          logMax: 100,
+          series: [SERIES.cpu, SERIES.gpu],
+          caption: "Model load + compile time; log scale; lower is better.",
+          groups: [
+            { label: "INT4", values: { cpu: 0.82, gpu: 3.73 } },
+            { label: "INT8", values: { cpu: 0.67, gpu: 5.74 } },
+            { label: "FP16", values: { cpu: 0.55, gpu: 22.98 } }
+          ]
+        }
+      }
+    },
+
+    imageGen: {
+      defaultMetric: "seconds",
+      metrics: {
+        seconds: {
+          title: "Time per generated image",
+          unit: "s",
+          decimals: 1,
+          series: [SERIES.cpu, SERIES.gpu],
+          caption: "Stable Diffusion — seconds per generated image; lower is better.",
+          groups: [
+            { label: "INT8 · single", values: { cpu: 37.2, gpu: 31.4 } },
+            { label: "INT8 · batch ×5", values: { cpu: 42.0, gpu: 29.3 } },
+            { label: "FP16 · single", values: { cpu: 47.0, gpu: 26.2 } },
+            { label: "FP16 · batch ×5", values: { cpu: 48.6, gpu: 24.4 } }
+          ]
+        }
+      }
+    }
+  };
+
+  /* ============================================================
+     SVG chart engine
+     ============================================================ */
+
+  let chartUid = 0;
+
+  function niceScale(maxValue, tickCount) {
+    if (!isFinite(maxValue) || maxValue <= 0) return { top: 1, ticks: [0, 1] };
+    const rawStep = maxValue / tickCount;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const normalized = rawStep / magnitude;
+    let step;
+    if (normalized <= 1) step = 1;
+    else if (normalized <= 2) step = 2;
+    else if (normalized <= 5) step = 5;
+    else step = 10;
+    step *= magnitude;
+
+    const top = Math.ceil(maxValue / step) * step;
+    const ticks = [];
+    for (let v = 0; v <= top + step * 0.001; v += step) {
+      ticks.push(Number(v.toFixed(10)));
+    }
+    return { top, ticks };
+  }
+
+  function logScale(minValue, maxValue) {
+    const lo = Math.floor(Math.log10(minValue));
+    const hi = Math.ceil(Math.log10(maxValue));
+    const ticks = [];
+    for (let e = lo; e <= hi; e++) ticks.push(Math.pow(10, e));
+    return { min: Math.pow(10, lo), max: Math.pow(10, hi), ticks };
+  }
+
+  function compact(value) {
+    if (value >= 1000000) return (value / 1000000).toFixed(value % 1000000 === 0 ? 0 : 1) + "M";
+    if (value >= 1000) return (value / 1000).toFixed(value % 1000 === 0 ? 0 : 1) + "k";
+    if (value >= 10) return String(Math.round(value));
+    if (value >= 1) return String(Number(value.toFixed(1)));
+    return String(Number(value.toFixed(2)));
+  }
+
+  function formatValue(value, metric) {
+    if (metric.unit === "ms" && value >= 10000) {
+      return (value / 1000).toFixed(1) + " s";
+    }
+    if (metric.unit === "ms") {
+      return value >= 1000 ? Math.round(value).toLocaleString("en-US") : String(Math.round(value));
+    }
+    if (metric.unit === "s" && value >= 10) {
+      return value.toFixed(1);
+    }
+    return value.toFixed(metric.decimals == null ? 1 : metric.decimals);
+  }
+
+  function el(tag, attrs, text) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    if (attrs) {
+      for (const key in attrs) node.setAttribute(key, attrs[key]);
+    }
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function renderBarChart(host, metric) {
+    host.innerHTML = "";
+    const uid = "chart-" + (++chartUid);
+    const hostRect = host.getBoundingClientRect();
+    const measuredWidth = hostRect.width - 12;
+    const measuredHeight = hostRect.height;
+    const W = Math.max(460, measuredWidth > 10 ? Math.round(measuredWidth) : 760);
+    const H = Math.max(200, measuredHeight > 10 ? Math.round(measuredHeight) : 300);
+    const margin = { top: 28, right: 14, bottom: 44, left: 50 };
+    const plotW = W - margin.left - margin.right;
+    const plotH = H - margin.top - margin.bottom;
+
+    const values = [];
+    metric.groups.forEach(function (group) {
+      metric.series.forEach(function (series) {
+        const value = group.values[series.key];
+        if (value != null && isFinite(value)) values.push(value);
+      });
+    });
+
+    let scaleType = metric.log ? "log" : "linear";
+    let yMin = 0;
+    let yMax;
+    let ticks;
+
+    if (scaleType === "log") {
+      const scale = logScale(metric.logMin || 1, metric.logMax || Math.max.apply(null, values));
+      yMin = scale.min;
+      yMax = scale.max;
+      ticks = scale.ticks;
+    } else {
+      const maxValue = Math.max.apply(null, values) * 1.12;
+      const scale = niceScale(maxValue, 4);
+      yMax = scale.top;
+      ticks = scale.ticks;
+    }
+
+    const logLo = Math.log10(yMin || 1);
+    const logHi = Math.log10(yMax || 1);
+
+    function yPos(value) {
+      if (scaleType === "log") {
+        const safe = Math.max(value, yMin);
+        return margin.top + plotH * (1 - (Math.log10(safe) - logLo) / (logHi - logLo));
+      }
+      return margin.top + plotH * (1 - value / yMax);
+    }
+
+    const svg = el("svg", {
+      viewBox: "0 0 " + W + " " + H,
+      role: "img",
+      "aria-label": metric.title + " by device and precision"
+    });
+
+    const defs = el("defs");
+    metric.series.forEach(function (series) {
+      const gradient = el("linearGradient", {
+        id: uid + "-" + series.key,
+        x1: "0",
+        y1: "0",
+        x2: "0",
+        y2: "1"
+      });
+      gradient.appendChild(el("stop", { offset: "0%", "stop-color": series.light }));
+      gradient.appendChild(el("stop", { offset: "100%", "stop-color": series.color }));
+      defs.appendChild(gradient);
+    });
+    svg.appendChild(defs);
+
+    /* Horizontal grid + y labels */
+    ticks.forEach(function (tick) {
+      const y = yPos(tick);
+      if (y < margin.top - 1 || y > H - margin.bottom + 1) return;
+      svg.appendChild(el("line", {
+        x1: margin.left,
+        x2: W - margin.right,
+        y1: y,
+        y2: y,
+        stroke: "rgba(148,163,184,0.13)",
+        "stroke-width": 1,
+        "stroke-dasharray": tick === 0 ? "0" : "3 5"
+      }));
+      svg.appendChild(el("text", {
+        x: margin.left - 10,
+        y: y + 3.5,
+        "text-anchor": "end",
+        fill: "#6f819f",
+        "font-size": 10.5,
+        "font-family": "var(--mono)"
+      }, compact(tick)));
+    });
+
+    /* Axis baseline */
+    svg.appendChild(el("line", {
+      x1: margin.left,
+      x2: W - margin.right,
+      y1: H - margin.bottom,
+      y2: H - margin.bottom,
+      stroke: "rgba(148,163,184,0.24)",
+      "stroke-width": 1
+    }));
+
+    const groupWidth = plotW / metric.groups.length;
+    const barWidth = Math.min(38, groupWidth / (metric.series.length + 1.25));
+    const gap = 5;
+    const totalBarsWidth = metric.series.length * barWidth + (metric.series.length - 1) * gap;
+
+    metric.groups.forEach(function (group, groupIndex) {
+      const center = margin.left + groupWidth * (groupIndex + 0.5);
+
+      metric.series.forEach(function (series, seriesIndex) {
+        const value = group.values[series.key];
+        if (value == null || !isFinite(value)) return;
+
+        const x = center - totalBarsWidth / 2 + seriesIndex * (barWidth + gap);
+        const y = yPos(value);
+        const height = Math.max(2, H - margin.bottom - y);
+
+        const rect = el("rect", {
+          x: x,
+          y: y,
+          width: barWidth,
+          height: height,
+          rx: 4,
+          ry: 4,
+          fill: "url(#" + uid + "-" + series.key + ")",
+          class: "bar"
+        });
+        rect.appendChild(el("title", {}, series.label + " · " + group.label + " — " + formatValue(value, metric) + " " + metric.unit));
+        svg.appendChild(rect);
+
+        svg.appendChild(el("text", {
+          x: x + barWidth / 2,
+          y: Math.max(12, y - 7),
+          "text-anchor": "middle",
+          fill: "#e9eefb",
+          "font-size": 10.5,
+          "font-weight": 650,
+          "font-family": "var(--mono)"
+        }, formatValue(value, metric)));
+      });
+
+      svg.appendChild(el("text", {
+        x: center,
+        y: H - margin.bottom + 22,
+        "text-anchor": "middle",
+        fill: "#93a4c3",
+        "font-size": 11,
+        "font-weight": 550
+      }, group.label));
+    });
+
+    /* Y unit label */
+    svg.appendChild(el("text", {
+      x: margin.left - 10,
+      y: margin.top - 14,
+      "text-anchor": "end",
+      fill: "#6f819f",
+      "font-size": 9.5,
+      "font-family": "var(--mono)"
+    }, metric.unit));
+
+    host.appendChild(svg);
+  }
+
+  /* ============================================================
+     Chart panels (tabs)
+     ============================================================ */
+
+  const chartDrawers = [];
+
+  document.querySelectorAll("[data-chart]").forEach(function (panel) {
+    const config = CHART_CONFIGS[panel.dataset.chart];
+    if (!config) return;
+
+    const host = panel.querySelector(".chart-host");
+    const legend = panel.querySelector(".chart-legend");
+    const caption = panel.querySelector(".chart-caption-text");
+    const badge = panel.querySelector(".scale-badge");
+    const title = panel.querySelector(".chart-title");
+    const tabs = panel.querySelectorAll(".metric-tab");
+    let activeMetric = config.defaultMetric;
+
+    function draw(metricKey) {
+      const metric = config.metrics[metricKey];
+      if (!metric) return;
+      activeMetric = metricKey;
+
+      renderBarChart(host, metric);
+
+      legend.innerHTML = "";
+      metric.series.forEach(function (series) {
+        const item = document.createElement("span");
+        item.className = "legend-item";
+        const swatch = document.createElement("span");
+        swatch.className = "legend-swatch";
+        swatch.style.background = series.color;
+        item.appendChild(swatch);
+        item.appendChild(document.createTextNode(series.label));
+        legend.appendChild(item);
+      });
+
+      if (caption) caption.textContent = metric.caption;
+      if (badge) badge.hidden = !metric.log;
+      if (title) title.textContent = metric.title;
+
+      tabs.forEach(function (tab) {
+        const active = tab.dataset.metric === metricKey;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", active ? "true" : "false");
+      });
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        draw(tab.dataset.metric);
+      });
+    });
+
+    draw(activeMetric);
+    chartDrawers.push(function () { draw(activeMetric); });
+  });
+
+  function redrawCharts() {
+    chartDrawers.forEach(function (draw) { draw(); });
+  }
+
+  let resizeTimer = null;
+  window.addEventListener("resize", function () {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(redrawCharts, 120);
+  });
+
+  /* ============================================================
+     Slide navigation
+     ============================================================ */
+
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const navLinks = Array.from(document.querySelectorAll(".nav-link"));
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const progressFill = document.getElementById("progressFill");
+  const slideCounter = document.getElementById("slideCounter");
+  const bottomCounter = document.getElementById("bottomCounter");
+
+  let current = 0;
+
+  function clamp(index) {
+    if (!Number.isFinite(index)) return 0;
+    return Math.max(0, Math.min(slides.length - 1, index));
+  }
+
+  function goTo(index, updateHash) {
+    current = clamp(index);
+
+    slides.forEach(function (slide, i) {
+      slide.classList.toggle("active", i === current);
+      if (i === current) slide.scrollTop = 0;
+    });
+
+    navLinks.forEach(function (link, i) {
+      const active = i === current;
+      link.classList.toggle("active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+
+    const human = current + 1;
+    const padded = String(human).padStart(2, "0");
+    progressFill.style.width = ((human / slides.length) * 100) + "%";
+    slideCounter.textContent = human + " / " + slides.length;
+    bottomCounter.textContent = padded + " / " + String(slides.length).padStart(2, "0");
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+
+    requestAnimationFrame(redrawCharts);
+
+    if (updateHash !== false) {
+      const hash = "#slide-" + human;
+      if (window.location.hash !== hash) {
+        history.replaceState(null, "", hash);
+      }
+    }
+  }
+
+  prevBtn.addEventListener("click", function () { goTo(current - 1); });
+  nextBtn.addEventListener("click", function () { goTo(current + 1); });
+
+  navLinks.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+      goTo(Number(link.dataset.slide));
+    });
+  });
+
+  window.addEventListener("keydown", function (event) {
+    const tag = (event.target && event.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select") return;
+
+    if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+      event.preventDefault();
+      goTo(current + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "PageUp") {
+      event.preventDefault();
+      goTo(current - 1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      goTo(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      goTo(slides.length - 1);
+    }
+  });
+
+  window.addEventListener("hashchange", function () {
+    const match = window.location.hash.match(/slide-(\d+)/);
+    if (match) goTo(Number(match[1]) - 1, false);
+  });
+
+  /* Swipe support */
+  let touchStartX = null;
+  let touchStartY = null;
+
+  document.getElementById("deck").addEventListener("touchstart", function (event) {
+    if (event.touches.length !== 1) return;
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+  }, { passive: true });
+
+  document.getElementById("deck").addEventListener("touchend", function (event) {
+    if (touchStartX == null || event.changedTouches.length !== 1) return;
+    const dx = event.changedTouches[0].clientX - touchStartX;
+    const dy = event.changedTouches[0].clientY - touchStartY;
+    touchStartX = null;
+    touchStartY = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      goTo(current + (dx < 0 ? 1 : -1));
+    }
+  }, { passive: true });
+
+  /* Initial slide from hash */
+  (function init() {
+    const match = window.location.hash.match(/slide-(\d+)/);
+    goTo(match ? Number(match[1]) - 1 : 0, false);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+iteration,model,framework,device,pretrain_time(s),initial_sys_mem(MiB),initial_rss_mem(MiB),compile_max_rss_mem(MiB),compile_max_sys_mem(MiB),compile_max_increase_rss_mem(MiB),compile_max_increase_sys_mem(MiB),input_size,infer_count,generation_time(s),output_size,latency(ms),1st_latency(ms),2nd_avg_latency(ms),precision,max_rss_mem(MiB),max_sys_mem(MiB),max_increase_rss_mem(MiB),max_increase_sys_mem(MiB),prompt_idx,chat_idx,1st_infer_latency(ms),2nd_infer_avg_latency(ms),num_beams,batch_size,tokenization_time,detokenization_time,result_md5,start,end
+0,qwen2.5-7b-int8,ov,GPU,5.74084,,,,,,,35,2556,69.2998,2560,135.35118,444.74838,26.94888,,,,,,0,,443.66,134.7422,1,5,0.8295,1.09297,"['8099d6fb21fbfdbe81bd23e69152ddc8', '8099d6fb21fbfdbe81bd23e69152ddc8', '8099d6fb21fbfdbe81bd23e69152ddc8', '8099d6fb21fbfdbe81bd23e69152ddc8', '8099d6fb21fbfdbe81bd23e69152ddc8']",2026-11-02T15:44:02.935817,2026-11-02T15:45:12.240323
+1,qwen2.5-7b-int8,ov,GPU,,,,,,,,35,2556,68.74091,2560,134.25958,327.97797,26.77558,,,,,,0,,327.943,133.87558,1,5,0.40251,0.90735,"['9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41']",2026-11-02T15:45:12.240347,2026-11-02T15:46:20.986073
+2,qwen2.5-7b-int8,ov,GPU,,,,,,,,35,2556,68.87461,2560,134.52072,349.60004,26.81947,,,,,,0,,349.544,134.09497,1,5,0.45681,1.05152,"['cbf815648f9752f3bec2c08e1cc45f6c', 'cbf815648f9752f3bec2c08e1cc45f6c', 'cbf815648f9752f3bec2c08e1cc45f6c', 'cbf815648f9752f3bec2c08e1cc45f6c', 'cbf815648f9752f3bec2c08e1cc45f6c']",2026-11-02T15:46:20.986117,2026-11-02T15:47:29.865858
+3,qwen2.5-7b-int8,ov,GPU,,,,,,,,35,2556,68.87776,2560,134.52687,310.0719,26.8362,,,,,,0,,310.011,134.17871,1,5,0.49416,0.87359,"['cc2e22db079f3a810e1f6ff284e28537', 'cc2e22db079f3a810e1f6ff284e28537', 'cc2e22db079f3a810e1f6ff284e28537', 'cc2e22db079f3a810e1f6ff284e28537', 'cc2e22db079f3a810e1f6ff284e28537']",2026-11-02T15:47:29.865905,2026-11-02T15:48:38.748289
+4,qwen2.5-7b-int8,ov,GPU,,,,,,,,35,2556,69.22247,2560,135.20014,309.83688,26.97119,,,,,,0,,309.782,134.85361,1,5,0.39323,1.17848,"['6061e5b50e9513a9853f61f411b4503e', '6061e5b50e9513a9853f61f411b4503e', '6061e5b50e9513a9853f61f411b4503e', '6061e5b50e9513a9853f61f411b4503e', '6061e5b50e9513a9853f61f411b4503e']",2026-11-02T15:48:38.748326,2026-11-02T15:49:47.976543
+5,qwen2.5-7b-int8,ov,GPU,,,,,,,,35,2556,69.0594,2560,134.88164,309.73572,26.90746,,,,,,0,,309.677,134.53491,1,5,0.4543,0.95048,"['6c8893f1dfa8fd8f533132d870f478e8', '6c8893f1dfa8fd8f533132d870f478e8', '6c8893f1dfa8fd8f533132d870f478e8', '6c8893f1dfa8fd8f533132d870f478e8', '6c8893f1dfa8fd8f533132d870f478e8']",2026-11-02T15:49:47.976587,2026-11-02T15:50:57.040787
+avg,qwen2.5-7b-int8,ov,GPU,,,,,,,,35.0,2556.0,68.95503,2560.0,134.67779,321.4445,26.86198,,,,,,0,,321.3914,134.30756,1,5,0.4402,0.99228,"['9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41']",,
+mini,qwen2.5-7b-int8,ov,GPU,,,,,,,,35,2556,68.74091,2560,134.25958,309.73572,26.77558,,,,,,0,,309.677,133.87558,1,5,0.39323,0.87359,"['9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41']",,
+median,qwen2.5-7b-int8,ov,GPU,,,,,,,,35.0,2556.0,68.87776,2560.0,134.52687,310.0719,26.8362,,,,,,0,,310.011,134.17871,1,5,0.4543,0.95048,"['9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41', '9c36c13d4f454af84ff300950be84e41']",,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+input_size: Input token size,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+output_size: Text/Code generation models: generated text token size,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+infer_count: Limit the Text/Code generation models' output token size,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+latency: Text/Code generation models: ms/token. Output token size / generation time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1st_latency: Text/Code generation models: First token latency (ms). For Text generation in chat mode it is normalized by input_size (ms/input_token).,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2nd_avg_latency: Text/Code generation models: Other tokens (exclude first token) latency,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+1st_infer_latency: Text/Code generation models: First inference latency i.e. prefill time (ms). For Text generation in chat mode it is normalized by input_size (ms/input_token).,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2nd_infer_avg_latency: Text/Code generation models: Other inferences (exclude first inference) latency,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+result_md5: MD5 of generated text,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+prompt_idx: Index of prompts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+chat_idx: Index of chats,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tokenization_time: Tokenizer encode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+detokenization_time: Tokenizer decode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+pretrain_time: Total time of load model and compile model,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+generation_time: Time for one interaction. (e.g. The duration of  answering one question or generating one picture),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+iteration=0: warm-up; iteration=avg: average (exclude warm-up);iteration=mini: minimum value (exclude warm-up);iteration=median: median value (exclude warm-up);,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_rss_mem/max_sys_mem: max rss/system memory consumption during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_increase_rss_mem/max_increase_sys_mem: max increase of rss/system memory during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+initial_rss_mem/initial_sys_mem: rss/system memory state at start;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_rss_mem/compile_max_sys_mem: max rss/system memory consumption on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_increase_rss_mem/compile_max_increase_sys_mem: max increase of rss/system memory on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

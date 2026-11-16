@@ -1,0 +1,34 @@
+Command line parameters
+-m;../../models/resnet50.xml
+-d;NPU
+-shape;[1,3,244,244]
+-hint;throughput
+-t;60
+-cdir;./cache
+-report_type;detailed_counters
+-report_folder;results/raw/resnet50_NPU_throughput
+
+Configuration setup
+topology;Model1
+target device;NPU
+API;async
+inference_only;True
+precision;UNSPECIFIED
+batch size;1
+number of iterations;None
+number of parallel infer requests;4
+duration (ms);60000
+
+Execution results
+read model time (ms);11.82
+reshape model time (ms);1.86
+compile model time (ms);1024.67
+first inference time (ms);43.08
+total execution time (ms);60059.31
+total number of iterations;6732
+latency (ms);35.15
+avg latency;35.53
+min latency;29.78
+max latency;93.08
+throughput;112.09
+

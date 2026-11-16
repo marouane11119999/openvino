@@ -1,0 +1,34 @@
+Command line parameters
+-m;../../models/yolo26x.xml
+-d;CPU
+-shape;[1,3,640,640]
+-hint;throughput
+-t;60
+-cdir;./cache
+-report_type;detailed_counters
+-report_folder;results/raw/yolo26x_CPU_throughput
+
+Configuration setup
+topology;Model1
+target device;CPU
+API;async
+inference_only;True
+precision;UNSPECIFIED
+batch size;1
+number of iterations;None
+number of parallel infer requests;5
+duration (ms);60000
+
+Execution results
+read model time (ms);32.58
+reshape model time (ms);0.03
+compile model time (ms);132.20
+first inference time (ms);393.12
+total execution time (ms);61392.34
+total number of iterations;480
+latency (ms);664.89
+avg latency;636.62
+min latency;458.92
+max latency;973.84
+throughput;7.82
+

@@ -1,0 +1,24 @@
+iteration,model,framework,device,pretrain_time(s),initial_sys_mem(MiB),initial_rss_mem(MiB),compile_max_rss_mem(MiB),compile_max_sys_mem(MiB),compile_max_increase_rss_mem(MiB),compile_max_increase_sys_mem(MiB),input_size,infer_count,generation_time(s),output_size,latency(ms),1st_latency(ms),2nd_avg_latency(ms),precision,max_rss_mem(MiB),max_sys_mem(MiB),max_increase_rss_mem(MiB),max_increase_sys_mem(MiB),prompt_idx,chat_idx,1st_infer_latency(ms),2nd_infer_avg_latency(ms),num_beams,batch_size,tokenization_time,detokenization_time,result_md5,start,end,tts_output_duration(s),tts_sample_rate(hz),tts_rtf
+0,speecht5_fp16,ov,GPU,3.47603,,,,,,,26,,4.30669,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.26073,,['3175eb2a38f6aa8ce8b36895c3d4fa19'],2026-11-14T14:53:39.405575,2026-11-14T14:53:43.720948,1.696,16000,2.53932
+1,speecht5_fp16,ov,GPU,,,,,,,,26,,2.76571,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.22615,,['8ba5a691e84611f05cca67edf6f361da'],2026-11-14T14:53:43.720973,2026-11-14T14:53:46.526240,1.696,16000,1.63073
+2,speecht5_fp16,ov,GPU,,,,,,,,26,,2.76656,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.38605,,['8ba5a691e84611f05cca67edf6f361da'],2026-11-14T14:53:46.526284,2026-11-14T14:53:49.328315,1.696,16000,1.63122
+3,speecht5_fp16,ov,GPU,,,,,,,,26,,2.78228,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.46754,,['8ba5a691e84611f05cca67edf6f361da'],2026-11-14T14:53:49.328380,2026-11-14T14:53:52.119409,1.696,16000,1.6405
+4,speecht5_fp16,ov,GPU,,,,,,,,26,,2.77815,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.32699,,['8ba5a691e84611f05cca67edf6f361da'],2026-11-14T14:53:52.119450,2026-11-14T14:53:54.935675,1.696,16000,1.63806
+5,speecht5_fp16,ov,GPU,,,,,,,,26,,2.77303,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.47684,,['8ba5a691e84611f05cca67edf6f361da'],2026-11-14T14:53:54.935736,2026-11-14T14:53:57.746980,1.696,16000,1.63504
+avg,speecht5_fp16,ov,GPU,,,,,,,,26.0,,2.77315,27136.0,,NA,NA,,,,,,0,,NA,NA,1,1,0.37671,,['8ba5a691e84611f05cca67edf6f361da'],,,1.696,16000,1.63511
+mini,speecht5_fp16,ov,GPU,,,,,,,,26,,2.76571,27136,,NA,NA,,,,,,0,,NA,NA,1,1,0.22615,,['8ba5a691e84611f05cca67edf6f361da'],,,1.696,16000,1.63073
+median,speecht5_fp16,ov,GPU,,,,,,,,26.0,,2.77303,27136.0,,NA,NA,,,,,,0,,NA,NA,1,1,0.38605,,['8ba5a691e84611f05cca67edf6f361da'],,,1.696,16000,1.63504
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tokenization_time: Tokenizer encode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+detokenization_time: Tokenizer decode time,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tts_output_duration(s): Generated audio duration in seconds (output_size / tts_sample_rate(hz)),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tts_sample_rate(hz): Generated audio sample rate in Hz,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tts_rtf: Real-time factor for TTS (generation_time / tts_output_duration(s)),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+pretrain_time: Total time of load model and compile model,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+generation_time: Time for one interaction. (e.g. The duration of  answering one question or generating one picture),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+iteration=0: warm-up; iteration=avg: average (exclude warm-up);iteration=mini: minimum value (exclude warm-up);iteration=median: median value (exclude warm-up);,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_rss_mem/max_sys_mem: max rss/system memory consumption during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+max_increase_rss_mem/max_increase_sys_mem: max increase of rss/system memory during iteration;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+initial_rss_mem/initial_sys_mem: rss/system memory state at start;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_rss_mem/compile_max_sys_mem: max rss/system memory consumption on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+compile_max_increase_rss_mem/compile_max_increase_sys_mem: max increase of rss/system memory on compilation phase;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
